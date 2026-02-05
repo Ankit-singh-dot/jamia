@@ -2,9 +2,7 @@ import { useEffect } from "react";
 
 const Oneko = () => {
     useEffect(() => {
-        // Check if we are in a browser environment
         if (typeof window === "undefined") return;
-
         const prefersReducedMotion = window.matchMedia(
             "(prefers-reduced-motion: reduce)"
         ).matches;
@@ -95,14 +93,12 @@ const Oneko = () => {
             nekoEl.style.top = `${nekoPosY - 16}px`;
             nekoEl.style.zIndex = "2147483647";
             nekoEl.style.backgroundImage =
-                "url('https://raw.githubusercontent.com/adryd325/oneko.js/master/oneko.gif')";
+                "url(https://raw.githubusercontent.com/adryd325/oneko.js/master/oneko.gif)";
             document.body.appendChild(nekoEl);
-
             document.addEventListener("mousemove", (event) => {
                 mousePosX = event.clientX;
                 mousePosY = event.clientY;
             });
-
             window.requestAnimationFrame(onAnimationFrame);
         };
 
@@ -198,12 +194,8 @@ const Oneko = () => {
         };
 
         init();
-
         return () => {
-            // Cleanup
-            if (nekoEl.isConnected) {
-                nekoEl.remove();
-            }
+            nekoEl.remove();
         };
     }, []);
 
