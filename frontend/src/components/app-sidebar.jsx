@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaInbox, FaSearch, FaCog, FaUser, FaMagic, FaBolt, FaPenNib, FaLayerGroup, FaRecycle } from "react-icons/fa";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { FaHome, FaInbox, FaSearch, FaCog, FaUser, FaMagic, FaBolt, FaPenNib, FaLayerGroup, FaRecycle, FaSignOutAlt } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 
 import {
     Sidebar,
@@ -38,22 +38,22 @@ const items = [
     },
     {
         title: "Refinement",
-        url: "/refinement",
+        url: "/refine",
         icon: FaBolt,
     },
     {
         title: "Repurposing",
-        url: "/repurposing",
+        url: "/repurpose",
         icon: FaRecycle,
     },
 ]
 
 export function AppSidebar(props) {
     const location = useLocation();
-    const { user, isLoaded, isSignedIn } = useUser();
+    const { user, logout } = useAuth();
 
     return (
-        <Sidebar collapsible="icon" {...props} className="z-40">
+        <Sidebar collapsible="icon" {...props} className="z-50 border-r border-border/50 bg-sidebar/95 backdrop-blur">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2 px-2 py-1 text-sidebar-foreground">
@@ -90,15 +90,18 @@ export function AppSidebar(props) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                            {isLoaded && isSignedIn ? (
+                            {user ? (
                                 <>
                                     <Avatar className="h-8 w-8 rounded-lg">
-                                        <AvatarImage src={user.imageUrl} alt={user.fullName} />
-                                        <AvatarFallback className="rounded-lg">{user.firstName?.charAt(0)}</AvatarFallback>
+                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt={user.name} />
+                                        <AvatarFallback className="rounded-lg">{user.name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                        <span className="truncate font-semibold">{user.fullName}</span>
-                                        <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
+                                        <span className="truncate font-semibold">{user.name}</span>
+                                        <div className="flex justify-between items-center">
+                                            <span className="truncate text-xs text-muted-foreground">Online</span>
+                                            <FaSignOutAlt className="h-3 w-3 hover:text-red-500 cursor-pointer" onClick={logout} />
+                                        </div>
                                     </div>
                                 </>
                             ) : (

@@ -7,7 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Copy, Share2, Layers } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+
+
+import { useAuth } from "@/context/AuthContext";
+
 export default function RepurposingPage() {
+    const { token } = useAuth();
     const [sourceContent, setSourceContent] = useState('');
     const [selectedFormats, setSelectedFormats] = useState([]);
     const [results, setResults] = useState(null);
@@ -22,7 +27,7 @@ export default function RepurposingPage() {
     const handleRepurpose = async () => {
         if (!sourceContent || selectedFormats.length === 0) return;
         setLoading(true);
-        const res = await MockAI.repurpose({ content: sourceContent, formats: selectedFormats });
+        const res = await MockAI.repurpose({ content: sourceContent, formats: selectedFormats }, token);
         setResults(res);
         setLoading(false);
     };

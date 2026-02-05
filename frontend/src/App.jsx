@@ -1,233 +1,243 @@
-import React, { useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp, UserButton } from "@clerk/clerk-react";
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate, useLocation, Link } from 'react-router-dom';
+import Spline from '@splinetool/react-spline';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Separator } from "@/components/ui/separator";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import Oneko from "@/components/Oneko";
-import SplineScene from "@/components/SplineScene";
 
-// Pages
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
+} from "@/components/ui/sidebar"
+
+import SignInPage from "@/pages/SignInPage";
+import SignUpPage from "@/pages/SignUpPage";
 import IdeationPage from "@/pages/IdeationPage";
 import DraftingPage from "@/pages/DraftingPage";
 import RefinementPage from "@/pages/RefinementPage";
 import RepurposingPage from "@/pages/RepurposingPage";
-import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
+import SocialPreviewPage from "@/pages/SocialPreviewPage";
 
 import { ButtonDemo } from "@/components/button-demo";
 import { CardDemo } from "@/components/card-demo";
 import { WelcomeCard } from "@/components/welcome-card";
+import { Testimonials } from "@/components/Testimonials";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Toggle } from "@/components/ui/toggle";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Sparkles, PenTool, Edit3, Share2, Twitter, Instagram, Linkedin, FileText, CheckCircle2 } from "lucide-react";
 
-// Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+import Oneko from "@/components/Oneko";
 
-if (!PUBLISHABLE_KEY) {
-    throw new Error("Missing Publishable Key")
-}
+const ProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+    const location = useLocation();
 
-function LandingPage() {
-    return (
-        <div className="space-y-12 animate-in fade-in duration-500">
-            {/* Hero Section */}
-            <section className="min-h-[60vh] flex flex-col justify-center hero-content">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div className="space-y-6">
-                        <div className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                            Now in Beta
-                        </div>
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/50">
-                            AI-Based Content Creation
-                        </h1>
-                        <p className="text-xl text-muted-foreground leading-relaxed max-w-[600px]">
-                            Creating high-quality digital content consistently is a major challenge.
-                            Content Genie helps you generate, refine, and optimize content across multiple formats.
-                        </p>
-                        <div className="flex gap-4">
-                            <Link to="/ideation" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
-                                Get Started
-                            </Link>
-                            <SignedOut>
-                                <Link to="/sign-in" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
-                                    Sign In
-                                </Link>
-                            </SignedOut>
-                        </div>
-                    </div>
-                    <div className="flex justify-center md:justify-end">
-                        <SignedOut>
-                            <CardDemo />
-                        </SignedOut>
-                        <SignedIn>
-                            <WelcomeCard />
-                        </SignedIn>
-                    </div>
-                </div>
-            </section>
+    if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
-            {/* Features / Showcase */}
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="aspect-video rounded-xl bg-muted/50 border flex items-center justify-center p-6">
-                    <div className="text-center space-y-2">
-                        <h3 className="font-semibold text-lg">Ideation</h3>
-                        <p className="text-sm text-muted-foreground">Automated topic suggestions and drafting.</p>
-                        <Skeleton className="h-4 w-[100px] mx-auto mt-4" />
-                    </div>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 border flex items-center justify-center p-6">
-                    <div className="text-center space-y-2">
-                        <h3 className="font-semibold text-lg">Optimization</h3>
-                        <p className="text-sm text-muted-foreground">Content quality improvement and SEO.</p>
-                        <Skeleton className="h-4 w-[100px] mx-auto mt-4" />
-                    </div>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 border flex items-center justify-center p-6">
-                    <div className="text-center space-y-2">
-                        <h3 className="font-semibold text-lg">Multi-Format</h3>
-                        <p className="text-sm text-muted-foreground">Support for blogs, social, and more.</p>
-                        <Skeleton className="h-4 w-[100px] mx-auto mt-4" />
-                    </div>
-                </div>
-            </div>
+    if (!user) {
+        return <Navigate to="/sign-in" state={{ from: location }} replace />;
+    }
 
-            {/* Accordion FAQ */}
-            <div className="max-w-2xl w-full mx-auto my-12 bg-card/40 backdrop-blur-sm p-8 rounded-2xl border">
-                <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-                <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>What is Content Genie?</AccordionTrigger>
-                        <AccordionContent>
-                            Content Genie is an AI-powered assistant that helps creators generate and optimize digital content efficiently.
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-2">
-                        <AccordionTrigger>Who is it for?</AccordionTrigger>
-                        <AccordionContent>
-                            It is designed for content creators, marketing teams, small businesses, and educational organizations.
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-3">
-                        <AccordionTrigger>Is it free?</AccordionTrigger>
-                        <AccordionContent>
-                            We offer a free tier for hackathon judges and a premium tier for power users.
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </div>
-        </div>
-    )
-}
+    return children;
+};
 
 function Layout() {
-    // This component wraps the main app content that needs the sidebar
+    const { user } = useAuth();
     return (
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset className="relative overflow-hidden bg-background/50 isolate">
-
-                {/* Spline Background (Robot Scene) */}
-                <div className="fixed inset-0 z-0 pointer-events-none">
-                    <SplineScene scene="https://prod.spline.design/C4bhRKVlqFQWWZHz/scene.splinecode" className="w-full h-full" />
+                <div className="fixed inset-0 z-[-1] opacity-70 pointer-events-none">
+                    <Spline scene="https://prod.spline.design/C4bhRKVlqFQWWZHz/scene.splinecode" />
                 </div>
 
-                <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 border-b bg-background/60 backdrop-blur-md px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Link to="/" className="font-semibold text-foreground tracking-tight hover:opacity-80 transition-opacity">
-                            Content Genie
-                        </Link>
-                    </div>
-                    <div className="ml-auto flex items-center gap-2">
-                        <UserButton afterSignOutUrl="/" />
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-md bg-background/20 sticky top-0 z-40">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 h-4" />
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-4">
+                        {!user && <Link to="/sign-in" className="text-sm font-medium hover:underline">Sign In</Link>}
                     </div>
                 </header>
 
                 <div className="relative z-10 flex flex-1 flex-col gap-4 p-4 md:p-10 max-w-7xl mx-auto w-full min-h-[calc(100vh-4rem)]">
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
-
-                        {/* Protected Routes */}
-                        <Route path="/ideation" element={
-                            <>
-                                <SignedIn><IdeationPage /></SignedIn>
-                                <SignedOut><RedirectToSignIn /></SignedOut>
-                            </>
-                        } />
-                        <Route path="/drafting" element={
-                            <>
-                                <SignedIn><DraftingPage /></SignedIn>
-                                <SignedOut><RedirectToSignIn /></SignedOut>
-                            </>
-                        } />
-                        <Route path="/refinement" element={
-                            <>
-                                <SignedIn><RefinementPage /></SignedIn>
-                                <SignedOut><RedirectToSignIn /></SignedOut>
-                            </>
-                        } />
-                        <Route path="/repurposing" element={
-                            <>
-                                <SignedIn><RepurposingPage /></SignedIn>
-                                <SignedOut><RedirectToSignIn /></SignedOut>
-                            </>
-                        } />
+                        <Route path="/ideation" element={<IdeationPage />} />
+                        <Route path="/drafting" element={<DraftingPage />} />
+                        <Route path="/refine" element={<RefinementPage />} />
+                        <Route path="/repurpose" element={<RepurposingPage />} />
+                        <Route path="/social-preview" element={<SocialPreviewPage />} />
+                        <Route path="/dashboard" element={<Navigate to="/" replace />} />
                     </Routes>
-
-                    <div className="min-h-[10vh]" /> {/* Spacer */}
                 </div>
             </SidebarInset>
         </SidebarProvider>
     );
 }
 
+function LandingPage() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    return (
+        <div className="flex flex-col gap-16 md:gap-24 pb-20">
+            {/* Hero Section */}
+            <section className="flex flex-col md:flex-row justify-between items-center gap-8 min-h-[70vh]">
+                <div className="flex-1 space-y-6">
+                    <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary hover:bg-primary/20">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        AI-Powered Content Suite
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+                        Create Content <br />
+                        <span className="text-primary/90">Hands-Free.</span>
+                    </h1>
+                    <p className="text-muted-foreground text-xl max-w-lg leading-relaxed">
+                        From fleeting thoughts to viral threads. Generate, refine, and visualize your content strategy in seconds with Content Genie.
+                    </p>
+                    <div className="flex gap-4 pt-4">
+                        <Button size="lg" className="h-12 px-8" onClick={() => navigate(user ? "/ideation" : "/sign-up")}>
+                            {user ? "Go to Dashboard" : "Start Creating Free"}
+                        </Button>
+                        <Button size="lg" variant="outline" className="h-12 px-8 bg-background/20 backdrop-blur-sm border-white/10 hover:bg-background/40">
+                            Watch Demo
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="flex-1 flex justify-center md:justify-end scale-110 md:scale-125 origin-center">
+                    {user ? <WelcomeCard /> : <CardDemo />}
+                </div>
+            </section>
+
+            {/* Features Grid */}
+            <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-card/60 to-card/40 border border-white/5 p-6 hover:border-primary/20 transition-all duration-300">
+                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Sparkles className="w-10 h-10 text-primary/80 mb-4" />
+                    <h3 className="font-semibold text-xl mb-2">Ideation</h3>
+                    <p className="text-muted-foreground text-sm">Generate endless topic ideas tailored to your niche and audience.</p>
+                </div>
+                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-card/60 to-card/40 border border-white/5 p-6 hover:border-primary/20 transition-all duration-300">
+                    <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <PenTool className="w-10 h-10 text-blue-400 mb-4" />
+                    <h3 className="font-semibold text-xl mb-2">Drafting</h3>
+                    <p className="text-muted-foreground text-sm">Turn ideas into structured drafts with one click. Blogs, scripts, and more.</p>
+                </div>
+                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-card/60 to-card/40 border border-white/5 p-6 hover:border-primary/20 transition-all duration-300">
+                    <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Edit3 className="w-10 h-10 text-green-400 mb-4" />
+                    <h3 className="font-semibold text-xl mb-2">Refinement</h3>
+                    <p className="text-muted-foreground text-sm">Polish your content. Fix grammar, adjust tone, and simplify complex text.</p>
+                </div>
+                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-card/60 to-card/40 border border-white/5 p-6 hover:border-primary/20 transition-all duration-300">
+                    <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Share2 className="w-10 h-10 text-purple-400 mb-4" />
+                    <h3 className="font-semibold text-xl mb-2">Repurposing</h3>
+                    <p className="text-muted-foreground text-sm">Transform one piece of content into tweets, LinkedIn posts, and Instagram captions.</p>
+                </div>
+            </section>
+
+            {/* Testimonials / Social Proof */}
+            <section className="space-y-8">
+                <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold">Loved by Creators</h2>
+                    <p className="text-muted-foreground">Join thousands of creators building their audience hands-free.</p>
+                </div>
+                <Testimonials />
+            </section>
+
+            {/* CTA Section */}
+            <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 via-background/40 to-background border border-white/10 p-12 text-center space-y-6">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+                <h2 className="text-3xl md:text-5xl font-bold relative z-10">Ready to automate your growth?</h2>
+                <p className="text-muted-foreground max-w-xl mx-auto relative z-10 text-lg">
+                    Stop staring at a blank page. Start creating content that converts.
+                </p>
+                <div className="relative z-10 pt-4">
+                    <Button size="lg" className="h-14 px-10 text-lg rounded-full shadow-2xl shadow-primary/20" onClick={() => navigate("/sign-up")}>
+                        Get Started for Free
+                    </Button>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="border-t border-white/10 pt-8 mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                    <div className="space-y-4">
+                        <Link to="/" className="text-xl font-bold">Content Genie</Link>
+                        <p className="text-sm text-muted-foreground">The AI companion for modern creators.</p>
+                        <div className="flex gap-4">
+                            <Twitter className="w-5 h-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+                            <Instagram className="w-5 h-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+                            <Linkedin className="w-5 h-5 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </div>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-4">Product</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link to="#" className="hover:text-foreground">Features</Link></li>
+                            <li><Link to="#" className="hover:text-foreground">Pricing</Link></li>
+                            <li><Link to="#" className="hover:text-foreground">Showcase</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-4">Company</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link to="#" className="hover:text-foreground">About</Link></li>
+                            <li><Link to="#" className="hover:text-foreground">Blog</Link></li>
+                            <li><Link to="#" className="hover:text-foreground">Careers</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-4">Legal</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link to="#" className="hover:text-foreground">Privacy</Link></li>
+                            <li><Link to="#" className="hover:text-foreground">Terms</Link></li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="text-center text-xs text-muted-foreground border-t border-white/5 pt-8">
+                    © 2024 Content Genie Inc. All rights reserved.
+                </div>
+            </footer>
+        </div>
+    );
+}
+
 function App() {
     useEffect(() => {
-        const lenis = new Lenis({
-            autoRaf: true,
-        });
-
-        lenis.on('scroll', ScrollTrigger.update);
-
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
-
-        gsap.ticker.lagSmoothing(0);
-        gsap.fromTo(".app-container", { opacity: 0 }, { opacity: 1, duration: 1 });
-
-        return () => {
-            lenis.destroy();
-            gsap.ticker.remove(lenis.raf);
-        };
+        const lenis = new Lenis();
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
     }, []);
 
     return (
-        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+        <AuthProvider>
             <Router>
-                <div className="app-container">
+                <div className="app-container font-sans antialiased text-foreground bg-background">
                     <Oneko />
                     <Routes>
-                        {/* Auth Routes (No Sidebar) */}
-                        <Route path="/sign-in/*" element={<SignInPage />} />
-                        <Route path="/sign-up/*" element={<SignUpPage />} />
-
-                        {/* Main Routes (With Sidebar) */}
+                        <Route path="/sign-in" element={<SignInPage />} />
+                        <Route path="/sign-up" element={<SignUpPage />} />
                         <Route path="/*" element={<Layout />} />
                     </Routes>
                 </div>
             </Router>
-        </ClerkProvider>
+        </AuthProvider>
     )
 }
 
-export default App
+export default App;

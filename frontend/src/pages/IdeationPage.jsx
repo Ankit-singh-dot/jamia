@@ -7,7 +7,12 @@ import { MockAI } from "@/lib/mock-ai";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles, Copy, Check } from "lucide-react";
 
+// import { MockAI } from "@/lib/mock-ai";
+
+import { useAuth } from "@/context/AuthContext";
+
 export default function IdeationPage() {
+    const { token } = useAuth();
     const [formData, setFormData] = useState({ niche: '', audience: '', goal: '', platform: '' });
     const [ideas, setIdeas] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -16,7 +21,7 @@ export default function IdeationPage() {
     const handleGenerate = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const results = await MockAI.ideate(formData);
+        const results = await MockAI.ideate(formData, token);
         setIdeas(results);
         setLoading(false);
     };

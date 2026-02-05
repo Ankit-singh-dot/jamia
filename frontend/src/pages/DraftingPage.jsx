@@ -8,7 +8,12 @@ import { MockAI } from "@/lib/mock-ai";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PenTool, Download } from "lucide-react";
 
+// import { MockAI } from "@/lib/mock-ai";
+
+import { useAuth } from "@/context/AuthContext";
+
 export default function DraftingPage() {
+    const { token } = useAuth();
     const [formData, setFormData] = useState({ topic: '', tone: 'Professional', length: 'Medium', style: 'Storytelling' });
     const [draft, setDraft] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -16,7 +21,7 @@ export default function DraftingPage() {
     const handleDraft = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const result = await MockAI.draft(formData);
+        const result = await MockAI.draft(formData, token);
         setDraft(result);
         setLoading(false);
     };

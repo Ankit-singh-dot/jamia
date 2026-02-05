@@ -6,7 +6,12 @@ import { MockAI } from "@/lib/mock-ai";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wand2, ArrowRight } from "lucide-react";
 
+// import { MockAI } from "@/lib/mock-ai";
+
+import { useAuth } from "@/context/AuthContext";
+
 export default function RefinementPage() {
+    const { token } = useAuth();
     const [content, setContent] = useState('');
     const [refinedContent, setRefinedContent] = useState('');
     const [loading, setLoading] = useState(false);
@@ -15,7 +20,7 @@ export default function RefinementPage() {
     const handleRefine = async () => {
         if (!content) return;
         setLoading(true);
-        const result = await MockAI.refine({ content, option: activeOpt });
+        const result = await MockAI.refine({ content, option: activeOpt }, token);
         setRefinedContent(result);
         setLoading(false);
     };
