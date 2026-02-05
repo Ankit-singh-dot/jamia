@@ -6,6 +6,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppSidebar } from "@/components/app-sidebar"
 import {
     SidebarInset,
@@ -64,6 +66,7 @@ function Layout() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <div className="flex-1" />
                     <div className="flex items-center gap-4">
+                        <ThemeToggle />
                         {!user && <Link to="/sign-in" className="text-sm font-medium hover:underline">Sign In</Link>}
                     </div>
                 </header>
@@ -225,18 +228,20 @@ function App() {
     }, []);
 
     return (
-        <AuthProvider>
-            <Router>
-                <div className="app-container font-sans antialiased text-foreground bg-background">
-                    <Oneko />
-                    <Routes>
-                        <Route path="/sign-in" element={<SignInPage />} />
-                        <Route path="/sign-up" element={<SignUpPage />} />
-                        <Route path="/*" element={<Layout />} />
-                    </Routes>
-                </div>
-            </Router>
-        </AuthProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <Router>
+                    <div className="app-container font-sans antialiased text-foreground bg-background">
+                        <Oneko />
+                        <Routes>
+                            <Route path="/sign-in" element={<SignInPage />} />
+                            <Route path="/sign-up" element={<SignUpPage />} />
+                            <Route path="/*" element={<Layout />} />
+                        </Routes>
+                    </div>
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     )
 }
 
