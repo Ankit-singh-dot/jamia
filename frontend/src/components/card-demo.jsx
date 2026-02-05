@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -12,6 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export function CardDemo() {
+    const navigate = useNavigate()
+
+    const handleNavigation = (e) => {
+        e.preventDefault()
+        navigate("/sign-in")
+    }
+
     return (
         <Card className="w-full max-w-sm backdrop-blur-md bg-card/50 border-white/10 shadow-2xl">
             <CardHeader>
@@ -20,11 +28,11 @@ export function CardDemo() {
                     Enter your email below to login to your account
                 </CardDescription>
                 <CardAction>
-                    <Button variant="link" className="px-0">Sign Up</Button>
+                    <Button variant="link" className="px-0" onClick={() => navigate("/sign-up")}>Sign Up</Button>
                 </CardAction>
             </CardHeader>
             <CardContent>
-                <form onSubmit={(e) => e.preventDefault()}>
+                <form onSubmit={handleNavigation}>
                     <div className="flex flex-col gap-6">
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
@@ -40,6 +48,7 @@ export function CardDemo() {
                                 <Label htmlFor="password">Password</Label>
                                 <a
                                     href="#"
+                                    onClick={(e) => { e.preventDefault(); navigate("/sign-in"); }}
                                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                 >
                                     Forgot your password?
@@ -51,10 +60,10 @@ export function CardDemo() {
                 </form>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" onClick={handleNavigation}>
                     Login
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={handleNavigation}>
                     Login with Google
                 </Button>
             </CardFooter>
