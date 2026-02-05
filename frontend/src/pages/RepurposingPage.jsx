@@ -45,9 +45,9 @@ export default function RepurposingPage() {
                 {/* Input Column */}
                 <div className="lg:col-span-5 space-y-6">
                     <div className="space-y-2">
-                        <Label>Source Content (Blog, Article, Thoughts)</Label>
+                        <Label className="text-foreground">Source Content (Blog, Article, Thoughts)</Label>
                         <textarea
-                            className="w-full h-48 rounded-md border bg-card p-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full h-48 rounded-md border border-border bg-background text-foreground p-4 overflow-y-auto resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
                             placeholder="Paste your main content here..."
                             value={sourceContent}
                             onChange={e => setSourceContent(e.target.value)}
