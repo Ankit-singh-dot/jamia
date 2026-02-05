@@ -1,9 +1,7 @@
 import * as React from "react"
-import {
-    Calendar,
-    ChevronDown,
-} from "lucide-react"
-import { FaHome, FaInbox, FaSearch, FaCog, FaUser, FaMagic, FaBolt } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { FaHome, FaInbox, FaSearch, FaCog, FaUser, FaMagic, FaBolt, FaPenNib, FaLayerGroup, FaRecycle } from "react-icons/fa";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 import {
     Sidebar,
@@ -25,29 +23,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const items = [
     {
         title: "Home",
-        url: "#",
+        url: "/",
         icon: FaHome,
     },
     {
-        title: "Content Genie",
-        url: "#",
+        title: "Ideation",
+        url: "/ideation",
         icon: FaMagic,
     },
     {
-        title: "Analytics",
-        url: "#",
-        icon: FaInbox,
+        title: "Drafting",
+        url: "/drafting",
+        icon: FaPenNib,
     },
     {
-        title: "Settings",
-        url: "#",
-        icon: FaCog,
+        title: "Refinement",
+        url: "/refinement",
+        icon: FaBolt,
+    },
+    {
+        title: "Repurposing",
+        url: "/repurposing",
+        icon: FaRecycle,
     },
 ]
 
 export function AppSidebar(props) {
+    const location = useLocation();
+    const { user, isLoaded, isSignedIn } = useUser();
+
     return (
-        <Sidebar collapsible="icon" {...props}>
+        <Sidebar collapsible="icon" {...props} className="z-40">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2 px-2 py-1 text-sidebar-foreground">
@@ -63,16 +69,16 @@ export function AppSidebar(props) {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
+                    <SidebarGroupLabel>Features</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild tooltip={item.title}>
-                                        <a href={item.url}>
+                                    <SidebarMenuButton asChild tooltip={item.title} isActive={location.pathname === item.url}>
+                                        <Link to={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
-                                        </a>
+                                        </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
@@ -84,15 +90,28 @@ export function AppSidebar(props) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                            <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                            </Avatar>
-                            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-semibold">Ankit Singh</span>
-                                <span className="truncate text-xs">m@example.com</span>
-                            </div>
-                            {/* <ChevronDown className="ml-auto size-4" /> */}
+                            {isLoaded && isSignedIn ? (
+                                <>
+                                    <Avatar className="h-8 w-8 rounded-lg">
+                                        <AvatarImage src={user.imageUrl} alt={user.fullName} />
+                                        <AvatarFallback className="rounded-lg">{user.firstName?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                        <span className="truncate font-semibold">{user.fullName}</span>
+                                        <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Avatar className="h-8 w-8 rounded-lg">
+                                        <AvatarFallback className="rounded-lg">?</AvatarFallback>
+                                    </Avatar>
+                                    <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                        <span className="truncate font-semibold">Guest</span>
+                                        <Link to="/sign-in" className="truncate text-xs hover:underline">Sign In</Link>
+                                    </div>
+                                </>
+                            )}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
